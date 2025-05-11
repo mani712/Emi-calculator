@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Use our EMI Calculator to easily compute your loan EMIs. Calculate monthly payments for home, car, or personal loans with accurate results.">
+    <meta name="keywords" content="EMI Calculator, Loan EMI Calculator, Home Loan emi, Car Loan emi, Personal Loan emi, emi Calculation Tool, Monthly EMI Calculator, Online emi Calculator, emi calculator, loan calculator, emi calculator for personal loan, emi calculator app, loan emi calculator, emi calculator for home loan, emi, bike emi calculator, emi loan calculator, home loan calculator, internet emi calculator">
+    <title>Free EMI Calculator - Accurate Loan EMI Calculation for Home, Car and More</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f5f7fa;
+            --text-color: #2d3748;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .calculator-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .input-section {
+            background: var(--secondary-color);
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input[type="number"], input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        input[type="range"] {
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        .result-section {
+            padding: 25px;
+        }
+
+        .emi-display {
+            background: var(--primary-color);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .emi-amount {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .calculation-details {
+            background: var(--secondary-color);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .amortization-table {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+      	<header>
+        	<h1>EMI Calculator</h1>
+      </header>
+   <section>    
+        <div class="calculator-wrapper">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="principal">Loan Amount (₹)</label>
+                    <input type="number" id="principal" min="1000" step="1000" value="100000">
+                    <input type="range" id="principalRange" min="1000" max="5000000" step="1000" value="100000">
+                </div>
+
+                <div class="input-group">
+                    <label for="rate">Interest Rate (% p.a.)</label>
+                    <input type="number" id="rate" min="1" max="30" step="0.1" value="8.5">
+                    <input type="range" id="rateRange" min="1" max="30" step="0.1" value="8.5">
+                </div>
+
+                <div class="input-group">
+                    <label for="time">Loan Tenure (Years)</label>
+                    <input type="number" id="time" min="1" max="30" step="1" value="5">
+                    <input type="range" id="timeRange" min="1" max="30" step="1" value="5">
+                </div>
+            </div>
+          
+
+            <div class="result-section">
+                <div class="emi-display">
+                    <div>Monthly EMI</div>
+                    <div class="emi-amount">₹0</div>
+                    <div id="totalDetails"></div>
+                </div>
+
+                <div class="calculation-details">
+                    <h3>Loan Breakdown</h3>
+                    <div id="breakdown"></div>
+                </div>
+
+                <div class="amortization-table">
+                    <h3>Amortization Schedule</h3>
+                    <table id="schedule">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Principal</th>
+                                <th>Interest</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div></section>
+    </div>
+  
+
+    <script>
+        const inputs = document.querySelectorAll('input[type="number"], input[type="range"]');
+        const emiAmount = document.querySelector('.emi-amount');
+        const breakdown = document.getElementById('breakdown');
+        const scheduleBody = document.querySelector('#schedule tbody');
+        const totalDetails = document.getElementById('totalDetails');
+
+        function calculateEMI() {
+            const principal = parseFloat(document.getElementById('principal').value);
+            const rate = parseFloat(document.getElementById('rate').value) / 1200;
+            const time = parseFloat(document.getElementById('time').value) * 12;
+
+            const emi = (principal * rate * Math.pow(1 + rate, time)) / (Math.pow(1 + rate, time) - 1);
+            const totalPayment = emi * time;
+            const totalInterest = totalPayment - principal;
+
+            // Update EMI display
+            emiAmount.textContent = `₹${emi.toFixed(2)}`;
+            
+            // Update total details
+            totalDetails.innerHTML = `
+                Total Payment: ₹${totalPayment.toFixed(2)}<br>
+                Total Interest: ₹${totalInterest.toFixed(2)}
+            `;
+
+            // Update breakdown
+            breakdown.innerHTML = `
+                <p>Loan Amount: ₹${principal.toLocaleString()}</p>
+                <p>Monthly Interest Rate: ${(rate * 100).toFixed(2)}%</p>
+                <p>Number of Payments: ${time}</p>
+            `;
+
+            // Generate amortization schedule
+            let balance = principal;
+            let scheduleHTML = '';
+            
+            for(let month = 1; month <= time; month++) {
+                const interest = balance * rate;
+                const principalPaid = emi - interest;
+                balance -= principalPaid;
+                
+                scheduleHTML += `
+                    <tr>
+                        <td>${month}</td>
+                        <td>₹${principalPaid.toFixed(2)}</td>
+                        <td>₹${interest.toFixed(2)}</td>
+                        <td>₹${balance > 0 ? Math.abs(balance).toFixed(2) : '0.00'}</td>
+                    </tr>
+                `;
+            }
+            
+            scheduleBody.innerHTML = scheduleHTML;
+        }
+
+        // Sync range and number inputs
+        inputs.forEach(input => {
+            input.addEventListener('input', (e) => {
+                const targetId = e.target.id;
+                const pairedInput = targetId.includes('Range') 
+                    ? document.getElementById(targetId.replace('Range', ''))
+                    : document.getElementById(targetId + 'Range');
+                
+                pairedInput.value = e.target.value;
+                calculateEMI();
+            });
+        });
+
+        // Initial calculation
+        calculateEMI();
+    </script>
+</body>
+</html>
